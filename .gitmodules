@@ -1,0 +1,3 @@
+[submodule "soupselect"]
+	path = soupselect
+	url = https://github.com/simonw/soupselect.git
