@@ -20,6 +20,7 @@ for i in range(500,1017):
     url = "http://www.ptt.cc/bbs/movie/index" + str(i) + ".html"
     file = urllib.urlopen(url)
     for lines in file.readlines():
+        # parse url 
         pat = re.compile('<a href="(/bbs.*)">(.*)</a>')
         title = re.findall(pat,lines)
         if(title):
@@ -28,11 +29,12 @@ for i in range(500,1017):
             page = BeautifulSoup( urllib.urlopen(url) ) 
             content = page.find(id="main-content")
             try :
+                # filter content 
                 for match in content.findAll('div'):
                     match.replaceWith("")
                 for match in content.findAll('span'):
                     match.replaceWith("")
-                #data = " ".join(content.contents)
+                # filter good and bad    
                 if(title[0][1].find("好雷") != -1):
                     comment_type = 1
                 elif(title[0][1].find("好雷") != -1):
