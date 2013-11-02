@@ -2,6 +2,7 @@
 # -*- coding: utf-8-*-
 import urllib
 import re
+import json
 from bs4 import BeautifulSoup
 """ 連進資料庫START  """
 import mosql

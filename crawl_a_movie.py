@@ -24,6 +24,8 @@ def craw_a_movie(url):
         if tmp[0] == 'src':
             data['cover'] = str(tmp[1])
             break
+    raw = select(soup, '#ymvs .bd .full p')
+    data['description'] = re.sub("<.*?>","",str(raw))
     return data
 
 def get_cross_data():
