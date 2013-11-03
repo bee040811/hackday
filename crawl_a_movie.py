@@ -3,6 +3,14 @@ import urllib
 import sys
 import json
 import re
+""" 連進資料庫START  """
+import mosql
+from mosql.query import *
+import mosql.mysql
+import MySQLdb as mdb 
+import _mysql 
+import xmlrpclib 
+""" 連進資料庫END    """
 
 from BeautifulSoup import BeautifulSoup as Soup
 import BeautifulSoup
@@ -51,6 +59,9 @@ def get_cross_data():
                     area_list.append(int(attr[1]))
         except:
             pass
+    film_list = [4883, 4954, 4951, 4851, 4948, 4731, 4924, 4913, 4925, 4908, 4886, 4946, 4912, 4936, 4901, 4903, 4915, 4850, 4940, 4941, 4919, 4904, 4899, 4833, 4878, 4875, 4911, 4807, 4914, 4768, 4891, 4837, 4887, 4868, 4839, 4848, 4803, 4828, 4869, 4855, 4844, 4863, 4865, 4861, 4822, 4818, 4808, 4767, 4753, 4812, 4700, 4778, 4733, 4584, 4687, 4765, 4769, 4789, 4723, 4526, 4772, 4648, 4587, 4796, 4223, 4694, 4365, 4521, 4470, 3941, 3026, 2924]
+    #area_list =     [18, 16, 20, 22, 19, 13, 21, 10, 17, 11, 12, 14, 23]
+    area_list =     [20,6,2,10]
     return film_list, area_list
 
 def get_theater_list():
@@ -80,17 +91,28 @@ def get_theater_list():
     u"高雄威秀影城"]
 
 def craw_out_time(i, j, url):
+    """ connect server  database    """
+
+    con = mdb.connect('localhost', 'root', '1234', 'hackday',charset='utf8') 
+    cur = con.cursor() 
+
     target = urllib.urlopen(url)
     soup = Soup(target)
     html = select(soup, '.bd-container div.row')
     for segment in html:
         store = select(segment, "a")[0].string
         if  store in white_list:
+            print store
             times = select(soup, '.mtcontainer span')
             for sec in times:
                 second = time2sec(sec.string)
-                print "[{0}:{1}:{2}]".format(i,j,second)
-
+                #print insert('movie_time',{"movie_id":i,"theater":store,"area":j,"seconds":second})
+                cur.execute(insert('movie_time',{"movie_id":i,"theater":store,"area":j,"seconds":second}))
+                #print "[{0}:{1}:{2}]".format(i,j,second)
+                # i movie yahoo id
+                # j area theater
+                # second time
+            con.commit()
 
 def time2sec(format_t):
     output = re.search(r"(\d*) : (\d*) ([A-Z]*)", format_t ).groups()
@@ -104,8 +126,11 @@ def time2sec(format_t):
 if __name__ == '__main__':
     white_list = get_theater_list()
     crossdata = get_cross_data();
+    print crossdata
+    ct=0
     for i in crossdata[0]:  #movie
         for j in crossdata[1]:  #area
-            print i,j
+            print ct
             url_tmpl = "http://tw.movie.yahoo.com/movietime_result.html?id={0}&area=(1)".format(i, j)
             craw_out_time(i, j, url_tmpl)
+            ct+=1
